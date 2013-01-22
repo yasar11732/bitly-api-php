@@ -276,13 +276,13 @@ class Bitly
     }
     
     // return or update info about a user
-    public function user_info($params)
+    public function user_info($params=array())
     {
         $data = $this->call_oauth2_metrics("v3/user/info", $params);
         return $data;
     }
     
-    public function user_link_history($params)
+    public function user_link_history($params=array())
     {
         if (is_bool(@$params["archived"])) {
             $params["archived"] = $params["archived"] ? "true" : "false";
@@ -784,15 +784,16 @@ class Bitly
         }
         
         if (array_key_exists("units", $params)) {
-            is_int($params["units"]) or exit(sprintf("Unit (%r) must be integer", $params["units"]));
+            if (!is_int($params["units"]))
+                throw new BitlyError(sprintf("Unit (%s) must be integer", $params["units"]));
         }
         
         if (array_key_exists("tz_offset", $params)) {
             // tz_offset can either be a hour offset, or a timezone like North_America/New_York
             if (is_int($params["tz_offset"]) && ($params["tz_offset"] < -12 || $params["tz_offset"] > 12)) {
-                exit("integer tz_offset must be between -12 and 12");
+                throw new BitlyError("integer tz_offset must be between -12 and 12");
             } elseif (!is_string($params["tz_offset"])) {
-                exit("");
+                throw new BitlyError("tz_offset must be either integer or string");
             }
         }
         
